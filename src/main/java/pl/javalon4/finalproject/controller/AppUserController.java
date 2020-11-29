@@ -4,7 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
+import pl.javalon4.finalproject.dto.AppUserDto;
 import pl.javalon4.finalproject.dto.UserForm;
+import pl.javalon4.finalproject.enity.AppUser;
 import pl.javalon4.finalproject.service.AppUserService;
 
 @RestController
@@ -27,6 +29,8 @@ public class AppUserController {
     // READ, get info about logged in user
     @GetMapping
     public AppUserDto getUser(@AuthenticationPrincipal User user) {
+
+        return appUserService.findByLogin(user);
         // TODO
     }
 

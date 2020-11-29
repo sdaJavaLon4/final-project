@@ -29,8 +29,8 @@ public class AppUserController {
     // READ, get info about logged in user
     @GetMapping
     public AppUserDto getUser(@AuthenticationPrincipal User user) {
-        AppUser byLogin = appUserService.findByLogin(user.getUsername());
-        return new AppUserDto(user.getUsername(), user.getPassword(), byLogin.getEmail);
+
+        return appUserService.findByLogin(user);
         // TODO
     }
 

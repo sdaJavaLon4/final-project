@@ -1,7 +1,9 @@
 package pl.javalon4.finalproject.service;
 
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.javalon4.finalproject.dto.AppUserDto;
 import pl.javalon4.finalproject.dto.UserForm;
 import pl.javalon4.finalproject.enity.AppUser;
 import pl.javalon4.finalproject.repository.AppUserRepository;
@@ -29,8 +31,10 @@ public class AppUserService {
         throw new RuntimeException();
     }
 
-    public AppUser findByLogin(String login) {
+    public AppUserDto findByLogin(User user) {
 
-        return repository.findByLogin(login);
+        AppUser byLogin = repository.findByLogin(user.getUsername());
+        return new AppUserDto(user.getUsername(), byLogin.getEmail );
+
     }
 }

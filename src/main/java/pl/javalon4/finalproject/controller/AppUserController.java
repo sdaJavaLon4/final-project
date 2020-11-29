@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import pl.javalon4.finalproject.dto.AppUserDto;
 import pl.javalon4.finalproject.dto.UserForm;
-import pl.javalon4.finalproject.enity.AppUser;
+import pl.javalon4.finalproject.dto.UserUpdateFormDto;
 import pl.javalon4.finalproject.service.AppUserService;
 
 @RestController
@@ -36,7 +36,8 @@ public class AppUserController {
 
     // UPDATE, change password and email
     @PatchMapping
-    public AppUserDto updateUser(@RequestBody UserUpdateForm updateForm, @AuthenticationPrincipal User user) {
+    public AppUserDto updateUser(@RequestBody UserUpdateFormDto updateForm, @AuthenticationPrincipal User user) {
+        return appUserService.update(updateForm, user);
         // TODO:
     }
 

@@ -10,8 +10,4 @@ public class AppUserDto {
     private String login;
     private String email;
 
-    public AppUserDto(String login, String email) {
-        this.login = login;
-        this.email = email;
-    }
 }

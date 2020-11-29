@@ -1,0 +1,7 @@
+CREATE TABLE app_user(
+    id VARCHAR(36) NOT NULL UNIQUE,
+    login VARCHAR(255) NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    email TEXT DEFAULT NULL,
+    PRIMARY KEY (id)
+) ENGINE=INNODB;

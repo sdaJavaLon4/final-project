@@ -34,7 +34,7 @@ public class AppUserService {
     public AppUserDto findByLogin(User user) {
 
         AppUser byLogin = repository.findByLogin(user.getUsername());
-        return new AppUserDto(user.getUsername(), byLogin.getEmail );
+        return new AppUserDto(user.getUsername(), byLogin.getEmail() );
 
     }
 }

@@ -28,4 +28,9 @@ public class AppUserService {
         }
         throw new RuntimeException();
     }
+
+    public AppUser findByLogin(String login) {
+
+        return repository.findByLogin(login);
+    }
 }

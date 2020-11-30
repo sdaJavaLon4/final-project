@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class UserUpdateFormDto {
 
-    private String password;
+    private String newPassword;
     private String email;
     private boolean changePassword;
     private boolean changeEmail;

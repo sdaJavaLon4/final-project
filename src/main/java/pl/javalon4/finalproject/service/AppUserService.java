@@ -3,6 +3,7 @@ package pl.javalon4.finalproject.service;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.javalon4.finalproject.dto.AppUserDto;
 import pl.javalon4.finalproject.dto.UserForm;
 import pl.javalon4.finalproject.dto.UserUpdateFormDto;
@@ -39,49 +40,34 @@ public class AppUserService {
 
         //AppUser byLogin = repository.findByLogin(user.getUsername());
         //return new AppUserDto(user.getUsername(), byLogin.getEmail());
-        return mapper.mapToDto(repository.findByLogin(user.getUsername()));
+        return mapper.mapToDto(repository.findByLogin(user.getUsername())
+                .orElseThrow(() -> new UserNotFoundException(user.getUsername())));
     }
 
-
+    @Transactional
     public AppUserDto update(UserUpdateFormDto updateForm, User user) {
-        if (updateForm.isChangePassword() && updateForm.isChangePassword()) {
-            try {
-                changePasswordAndEmail(user.getUsername(), updateForm.getPassword(), updateForm.getEmail());
-            } catch (UserNotFoundException e) {
-                e.printStackTrace();
-            }
+
+        if (updateForm.isChangePassword() && updateForm.isChangeEmail()) {
+            changePasswordAndEmail(user.getUsername(), updateForm.getNewPassword(), updateForm.getEmail());
         } else if (updateForm.isChangePassword()) {
-            try {
-                changePassword(user.getUsername(), updateForm.getPassword());
-            } catch (UserNotFoundException e) {
-                e.printStackTrace();
-            }
+            changePassword(user.getUsername(), updateForm.getNewPassword());
         } else {
-            try {
-                changeEmail(user.getUsername(), updateForm.getEmail());
-            } catch (UserNotFoundException e) {
-                e.printStackTrace();
-            }
+            changeEmail(user.getUsername(), updateForm.getEmail());
         }
-        return mapper.mapToDto(repository.findByLogin(user.getUsername()));
+        return mapper.mapToDto(repository.findByLogin(user.getUsername())
+                .orElseThrow(() -> new UserNotFoundException(user.getUsername())));
     }
 
-    private void changePasswordAndEmail(String login, String password, String email) throws UserNotFoundException {
-        if (!repository.updatePasswordAndEmail(login, passwordEncoder.encode(password), email)) {
-            throw new UserNotFoundException(String.format("User %s not found", login));
-        }
+    private void changePasswordAndEmail(String login, String password, String email) {
+        repository.updatePasswordAndEmail(login, passwordEncoder.encode(password), email);
 
     }
 
-    private void changePassword(String login, String password) throws UserNotFoundException {
-        if (!repository.updatePassword(login, passwordEncoder.encode(password))) {
-            throw new UserNotFoundException(String.format("User %s not found", login));
-        }
+    private void changePassword(String login, String password) {
+        repository.updatePassword(login, passwordEncoder.encode(password));
     }
 
-    private void changeEmail(String login, String email) throws UserNotFoundException {
-        if (!repository.updateEmail(login, email)) {
-            throw new UserNotFoundException(String.format("User %s not found", login));
-        }
+    private void changeEmail(String login, String email) {
+        repository.updateEmail(login, email);
     }
 }

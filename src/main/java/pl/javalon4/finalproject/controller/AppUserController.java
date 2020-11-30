@@ -16,6 +16,7 @@ public class AppUserController {
     private final AppUserService appUserService;
 
     public AppUserController(AppUserService appUserService) {
+
         this.appUserService = appUserService;
     }
 
@@ -23,6 +24,7 @@ public class AppUserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void registerUser(@RequestBody UserForm userForm) {
+
         this.appUserService.registerUser(userForm);
     }
 

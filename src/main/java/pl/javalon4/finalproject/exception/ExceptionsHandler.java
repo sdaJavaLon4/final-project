@@ -13,4 +13,9 @@ public class ExceptionsHandler {
     private String userNotFoundHandler(UserNotFoundException ex) {
         return ex.getMessage();
     }
+    @ExceptionHandler(IncorrectPasswordException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    private String incorrectPasswordHandler(IncorrectPasswordException ex) {
+        return ex.getMessage();
+    }
 }

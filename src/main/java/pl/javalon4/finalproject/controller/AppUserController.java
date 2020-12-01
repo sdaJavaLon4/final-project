@@ -46,6 +46,7 @@ public class AppUserController {
     // DELETE, delete logged in user (and invalidate session - later)
     @DeleteMapping
     public void deleteUser(@AuthenticationPrincipal User user) {
+        appUserService.delete(user);
         // TODO:
     }
 }

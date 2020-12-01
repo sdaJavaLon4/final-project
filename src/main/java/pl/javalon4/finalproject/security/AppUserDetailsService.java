@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import pl.javalon4.finalproject.enity.AppUser;
 import pl.javalon4.finalproject.repository.AppUserRepository;
 
 import java.util.Collections;
@@ -23,12 +22,17 @@ public class AppUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        AppUser appUser = appUserRepository.findByLogin(username)
+        return appUserRepository.findByLogin(username)
+                .stream()
+                .map(appUser -> new User(appUser.getLogin(), appUser.getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority("USER"))))
+                .findFirst()
                 .orElseThrow(() -> new UsernameNotFoundException("User with username " + username + " not found!"));
-//        if (appUser == null) {
-//            throw new UsernameNotFoundException("User with username " + username + " not found!");
-//        }
-        return new User(appUser.getLogin(), appUser.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("USER")));
+
+        //        AppUser appUser = appUserRepository.findByLogin(username)
+//                .orElseThrow(() -> new UsernameNotFoundException("User with username " + username + " not found!"));
+//
+//        return new User(appUser.getLogin(), appUser.getPassword(),
+//                Collections.singletonList(new SimpleGrantedAuthority("USER")));
     }
 }

@@ -10,4 +10,6 @@ public class UserForm {
     private String password;
 
     private String repeatedPassword;
+
+    private String email;
 }

@@ -48,7 +48,7 @@ public class AppUserService {
 
     @Transactional
     public AppUserDto update(UserUpdateFormDto updateForm, User user) {
-        if (passwordEncoder.encode(updateForm.getActualPassword()).equals(repository.findByLogin(user.getUsername()).get().getPassword())) {
+        if (passwordEncoder.matches(updateForm.getActualPassword(), repository.findByLogin(user.getUsername()).get().getPassword())) {
             if (updateForm.isChangePassword() && updateForm.isChangeEmail()) {
                 changePasswordAndEmail(user.getUsername(), updateForm.getNewPassword(), updateForm.getEmail());
             } else if (updateForm.isChangePassword()) {

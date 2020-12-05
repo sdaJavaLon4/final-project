@@ -20,7 +20,6 @@ public class AppUserController {
         this.appUserService = appUserService;
     }
 
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void registerUser(@RequestBody UserForm userForm) {
@@ -28,25 +27,19 @@ public class AppUserController {
         this.appUserService.registerUser(userForm);
     }
 
-
     @GetMapping
     public AppUserDto getUser(@AuthenticationPrincipal User user) {
 
-        return appUserService.findByLogin(user);
-        // TODO
+        return appUserService.findByLogin(user.getUsername());
     }
-
 
     @PatchMapping
     public AppUserDto updateUser(@RequestBody UserUpdateFormDto updateForm, @AuthenticationPrincipal User user) {
-        return appUserService.update(updateForm, user);
-        // TODO:
+        return appUserService.update(updateForm, user.getUsername());
     }
-
 
     @DeleteMapping
     public void deleteUser(@AuthenticationPrincipal User user) {
-        appUserService.delete(user);
-        // TODO:
+        appUserService.delete(user.getUsername());
     }
 }

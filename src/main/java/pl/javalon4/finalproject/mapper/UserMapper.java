@@ -15,7 +15,9 @@ public class UserMapper {
         return new AppUserDto(appUser.getLogin(), appUser.getEmail());
     }
 
-    public AppUser mapToEntity(UserUpdateFormDto updateFormDto, User user) {
-        return new AppUser(UUID.randomUUID().toString(), user.getUsername(), updateFormDto.getNewPassword(), updateFormDto.getEmail());
+    public AppUser mapToEntity(UserUpdateFormDto updateFormDto, AppUser user) {
+        user.setEmail(updateFormDto.getEmail());
+        user.setPassword(updateFormDto.getNewPassword());
+        return user;
     }
 }

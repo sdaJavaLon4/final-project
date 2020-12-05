@@ -29,10 +29,5 @@ public class AppUserDetailsService implements UserDetailsService {
                 .findFirst()
                 .orElseThrow(() -> new UsernameNotFoundException("User with username " + username + " not found!"));
 
-        //        AppUser appUser = appUserRepository.findByLogin(username)
-//                .orElseThrow(() -> new UsernameNotFoundException("User with username " + username + " not found!"));
-//
-//        return new User(appUser.getLogin(), appUser.getPassword(),
-//                Collections.singletonList(new SimpleGrantedAuthority("USER")));
     }
 }

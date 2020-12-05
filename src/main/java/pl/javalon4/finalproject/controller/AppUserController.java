@@ -20,7 +20,7 @@ public class AppUserController {
         this.appUserService = appUserService;
     }
 
-    // CREATE
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void registerUser(@RequestBody UserForm userForm) {
@@ -28,7 +28,7 @@ public class AppUserController {
         this.appUserService.registerUser(userForm);
     }
 
-    // READ, get info about logged in user
+
     @GetMapping
     public AppUserDto getUser(@AuthenticationPrincipal User user) {
 
@@ -36,14 +36,14 @@ public class AppUserController {
         // TODO
     }
 
-    // UPDATE, change password and email
+
     @PatchMapping
     public AppUserDto updateUser(@RequestBody UserUpdateFormDto updateForm, @AuthenticationPrincipal User user) {
         return appUserService.update(updateForm, user);
         // TODO:
     }
 
-    // DELETE, delete logged in user (and invalidate session - later)
+
     @DeleteMapping
     public void deleteUser(@AuthenticationPrincipal User user) {
         appUserService.delete(user);

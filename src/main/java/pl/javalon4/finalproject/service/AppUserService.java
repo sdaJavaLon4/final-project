@@ -14,6 +14,7 @@ import pl.javalon4.finalproject.exception.UserNotFoundException;
 import pl.javalon4.finalproject.mapper.UserMapper;
 import pl.javalon4.finalproject.repository.AppUserRepository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -40,40 +41,22 @@ public class AppUserService {
 
     public AppUserDto findByLogin(User user) {
 
-        //AppUser byLogin = repository.findByLogin(user.getUsername());
-        //return new AppUserDto(user.getUsername(), byLogin.getEmail());
         return mapper.mapToDto(repository.findByLogin(user.getUsername())
                 .orElseThrow(() -> new UserNotFoundException(user.getUsername())));
     }
 
     @Transactional
     public AppUserDto update(UserUpdateFormDto updateForm, User user) {
-        if (passwordEncoder.matches(updateForm.getActualPassword(), repository.findByLogin(user.getUsername()).get().getPassword())) {
-            if (updateForm.isChangePassword() && updateForm.isChangeEmail()) {
-                changePasswordAndEmail(user.getUsername(), updateForm.getNewPassword(), updateForm.getEmail());
-            } else if (updateForm.isChangePassword()) {
-                changePassword(user.getUsername(), updateForm.getNewPassword());
-            } else {
-                changeEmail(user.getUsername(), updateForm.getEmail());
-            }
+        if (isPasswordFormMatchDatabasePassword(updateForm, user)) {
+            repository.save(mapper.mapToEntity(updateForm, user));
             return mapper.mapToDto(repository.findByLogin(user.getUsername())
                     .orElseThrow(() -> new UserNotFoundException(user.getUsername())));
         } else throw new IncorrectPasswordException();
     }
 
-    private void changePasswordAndEmail(String login, String password, String email) {
-        repository.updatePasswordAndEmail(login, passwordEncoder.encode(password), email);
-
+    private boolean isPasswordFormMatchDatabasePassword(UserUpdateFormDto updateForm, User user) {
+        return passwordEncoder.matches(updateForm.getActualPassword(), repository.findByLogin(user.getUsername()).get().getPassword());
     }
-
-    private void changePassword(String login, String password) {
-        repository.updatePassword(login, passwordEncoder.encode(password));
-    }
-
-    private void changeEmail(String login, String email) {
-        repository.updateEmail(login, email);
-    }
-
     @Transactional
     public void delete(User user) {
         repository.delete(repository.findByLogin(user.getUsername())

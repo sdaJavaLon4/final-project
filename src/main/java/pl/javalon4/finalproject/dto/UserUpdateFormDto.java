@@ -10,6 +10,4 @@ public class UserUpdateFormDto {
     private String actualPassword;
     private String newPassword;
     private String email;
-    private boolean changePassword;
-    private boolean changeEmail;
 }

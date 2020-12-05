@@ -15,6 +15,8 @@ import pl.javalon4.finalproject.repository.AppUserRepository;
 
 import java.util.UUID;
 
+import static java.util.Collections.emptyList;
+
 @Service
 public class AppUserService {
 
@@ -33,7 +35,8 @@ public class AppUserService {
     public void registerUser(UserForm userForm) {
         if (userForm.getPassword().equals(userForm.getRepeatedPassword())) {
             final var encodedPassword = passwordEncoder.encode(userForm.getPassword());
-            this.repository.save(new AppUser(UUID.randomUUID().toString(), userForm.getLogin(), encodedPassword, null));
+            this.repository.save(new AppUser(UUID.randomUUID().toString(), userForm.getLogin(), encodedPassword, null,
+                    emptyList()));
             return;
         }
         throw new RuntimeException();

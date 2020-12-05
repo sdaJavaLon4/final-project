@@ -1,10 +1,11 @@
 package pl.javalon4.finalproject.enity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import java.util.UUID;
+import javax.persistence.*;
+import java.util.Collection;
 
 @Data
 @AllArgsConstructor
@@ -20,4 +21,7 @@ public class AppUser {
     private String password;
 
     private String email;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private Collection<LinkCategory> linkCategories;
 }

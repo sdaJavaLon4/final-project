@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.*;
@@ -79,7 +80,7 @@ class AppUserServiceTest {
     @Test
     public void shouldGetUserFromDatabaseByLoginAndMapToAppUserDto() {
         //given
-        AppUser appUser = new AppUser(UUID.randomUUID().toString(), LOGIN, PASSWORD, null);
+        AppUser appUser = new AppUser(UUID.randomUUID().toString(), LOGIN, PASSWORD, null, emptyList());
         when(repository.findByLogin(LOGIN)).thenReturn(Optional.of(appUser));
         //when
         AppUserDto appUserDto = userService.findByLogin(LOGIN);
@@ -111,8 +112,8 @@ class AppUserServiceTest {
         //given
         String id = UUID.randomUUID().toString();
         UserUpdateFormDto updateFormDto = new UserUpdateFormDto(PASSWORD, NEW_PASSWORD, EMAIL);
-        AppUser appUser = new AppUser(id, LOGIN, encoder.encode(PASSWORD), null);
-        AppUser updatedAppUser = new AppUser(id, LOGIN, NEW_PASSWORD, EMAIL);
+        AppUser appUser = new AppUser(id, LOGIN, encoder.encode(PASSWORD), null, emptyList());
+        AppUser updatedAppUser = new AppUser(id, LOGIN, NEW_PASSWORD, EMAIL, emptyList());
         when(repository.findByLogin(LOGIN)).thenReturn(Optional.of(appUser));
         when(encoder.matches(any(), any())).thenReturn(true);
 
@@ -131,8 +132,8 @@ class AppUserServiceTest {
         //given
         String id = UUID.randomUUID().toString();
         UserUpdateFormDto updateFormDto = new UserUpdateFormDto(PASSWORD, NEW_PASSWORD, EMAIL);
-        AppUser appUser = new AppUser(id, LOGIN, encoder.encode(PASSWORD), null);
-        AppUser updatedAppUser = new AppUser(id, LOGIN, NEW_PASSWORD, EMAIL);
+        AppUser appUser = new AppUser(id, LOGIN, encoder.encode(PASSWORD), null, emptyList());
+        AppUser updatedAppUser = new AppUser(id, LOGIN, NEW_PASSWORD, EMAIL, emptyList());
         when(repository.findByLogin(LOGIN)).thenReturn(Optional.of(appUser));
         when(encoder.matches(any(), any())).thenReturn(true);
 
@@ -150,8 +151,8 @@ class AppUserServiceTest {
         //given
         String id = UUID.randomUUID().toString();
         UserUpdateFormDto updateFormDto = new UserUpdateFormDto(PASSWORD, NEW_PASSWORD, EMAIL);
-        AppUser appUser = new AppUser(id, LOGIN, encoder.encode(PASSWORD), null);
-        AppUser updatedAppUser = new AppUser(id, LOGIN, NEW_PASSWORD, EMAIL);
+        AppUser appUser = new AppUser(id, LOGIN, encoder.encode(PASSWORD), null, emptyList());
+        AppUser updatedAppUser = new AppUser(id, LOGIN, NEW_PASSWORD, EMAIL, emptyList());
         when(repository.findByLogin(LOGIN)).thenReturn(Optional.of(appUser));
         when(encoder.matches(any(), any())).thenReturn(true);
 
@@ -170,7 +171,7 @@ class AppUserServiceTest {
         //given
         String id = UUID.randomUUID().toString();
         UserUpdateFormDto updateFormDto = new UserUpdateFormDto(WRONG_PASSWORD, NEW_PASSWORD, EMAIL);
-        AppUser appUser = new AppUser(id, LOGIN, encoder.encode(PASSWORD), null);
+        AppUser appUser = new AppUser(id, LOGIN, encoder.encode(PASSWORD), null, emptyList());
         when(repository.findByLogin(LOGIN)).thenReturn(Optional.of(appUser));
         //then
         assertThatExceptionOfType(IncorrectPasswordException.class)

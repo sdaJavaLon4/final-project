@@ -21,11 +21,13 @@ public class AppUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        final var appUser = appUserRepository.findByLogin(username);
-        if (appUser == null) {
-            throw new UsernameNotFoundException("User with username " + username + " not found!");
-        }
-        return new User(appUser.getLogin(), appUser.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("USER")));
+
+        return appUserRepository.findByLogin(username)
+                .stream()
+                .map(appUser -> new User(appUser.getLogin(), appUser.getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority("USER"))))
+                .findFirst()
+                .orElseThrow(() -> new UsernameNotFoundException("User with username " + username + " not found!"));
+
     }
 }

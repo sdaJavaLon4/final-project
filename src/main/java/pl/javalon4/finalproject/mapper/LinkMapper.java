@@ -13,30 +13,28 @@ import java.util.stream.Collectors;
 @Component
 public class LinkMapper {
 
-   public LinkDto mapToDto(Link link) {
+    public LinkDto mapToDto(Link link) {
 
-       return new LinkDto(link.getUrl(), link.getDescription(),
-               LinkStatusDto.valueOf(link.getStatus().name()),
-               mapToDto(link.getCategory(), false));
-   }
+        return new LinkDto(link.getUrl(), link.getDescription(), LinkStatusDto.valueOf(link.getStatus().name()),
+                mapToDto(link.getCategory(), false));
+    }
 
     public LinkCategoryDto mapToDto(LinkCategory linkCategory, boolean showLinks) {
-       if (showLinks) {
-           return new LinkCategoryDto(linkCategory.getName());
-       } else return new LinkCategoryDto(linkCategory.getName(),
-                        linkCategory.getLinks()
-                       .stream()
-                       .map(this::mapToDto)
-                       .collect(Collectors.toList()));
+        if (!showLinks) {
+            return new LinkCategoryDto(linkCategory.getName());
+        } else
+            return new LinkCategoryDto(linkCategory.getName(),
+                    linkCategory.getLinks().stream().map(this::mapToDto).collect(Collectors.toList()));
     }
 
-    public Link mapToEntity(LinkFormDto linkFormDto, AppUser appUser) {
+    public Link mapToEntity(LinkFormDto linkFormDto, AppUser appUser, LinkCategory category) {
 
-       return new Link(UUID.randomUUID().toString(), linkFormDto.getUrl(), linkFormDto.getDescription(),
-               LinkStatus.TO_READ, appUser);
+        return new Link(UUID.randomUUID().toString(), linkFormDto.getUrl(), linkFormDto.getDescription(),
+                LinkStatus.TO_READ, category, appUser);
 
     }
-    public LinkCategory mapToEntity(CategoryFormDto categoryFormDto) {
-       return new LinkCategory(UUID.randomUUID().toString(), categoryFormDto.getName());
+
+    public LinkCategory mapToEntity(CategoryFormDto categoryFormDto, AppUser user) {
+        return new LinkCategory(UUID.randomUUID().toString(), categoryFormDto.getName(), user);
     }
 }

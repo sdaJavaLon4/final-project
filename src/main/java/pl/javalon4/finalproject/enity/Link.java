@@ -9,16 +9,9 @@ import javax.persistence.*;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "link")
 public class Link {
-
-    public Link(String id, String url, String description, LinkStatus status, AppUser user) {
-        this.id = id;
-        this.url = url;
-        this.description = description;
-        this.status = status;
-        this.user = user;
-    }
 
     @Id
     private String id;

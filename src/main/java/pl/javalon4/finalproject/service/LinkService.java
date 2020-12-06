@@ -11,6 +11,7 @@ import pl.javalon4.finalproject.repository.AppUserRepository;
 import pl.javalon4.finalproject.repository.LinkCategoryRepository;
 import pl.javalon4.finalproject.repository.LinkRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,42 +20,45 @@ import java.util.stream.Collectors;
 public class LinkService {
 
     final private AppUserRepository appUserRepository;
+
     final private LinkCategoryRepository categoryRepository;
+
     final private LinkRepository linkRepository;
+
     final private LinkMapper mapper;
 
     public LinkService(AppUserRepository appUserRepository, LinkCategoryRepository categoryRepository,
-                       LinkRepository linkRepository, LinkMapper mapper) {
+            LinkRepository linkRepository, LinkMapper mapper) {
         this.appUserRepository = appUserRepository;
         this.categoryRepository = categoryRepository;
         this.linkRepository = linkRepository;
         this.mapper = mapper;
     }
 
-    public LinkDto search(String description) {
-        return mapper.mapToDto(linkRepository.findByDescriptionContainingIgnoreCase(description)
-                .orElseThrow(LinkNotFoundException::new));
-    }
-
-    public List<LinkDto> getAll() {
-        return linkRepository.findAll().stream()
-                .map(mapper::mapToDto)
+    public Collection<LinkDto> search(String description) {
+        return linkRepository.findByDescriptionContainingIgnoreCase(description).stream().map(mapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
+    public List<LinkDto> getAll() {
+        return linkRepository.findAll().stream().map(mapper::mapToDto).collect(Collectors.toList());
+    }
+
     public List<LinkCategoryDto> getAllCategories(boolean showLinks) {
-        return categoryRepository.findAll().stream()
-                .map(linkCategory -> mapper.mapToDto(linkCategory, showLinks))
+        return categoryRepository.findAll().stream().map(linkCategory -> mapper.mapToDto(linkCategory, showLinks))
                 .collect(Collectors.toList());
     }
 
     public LinkDto createLink(LinkFormDto linkFormDto, String login) {
         AppUser appUser = appUserRepository.findByLogin(login).orElseThrow(() -> new UserNotFoundException(login));
-        return mapper.mapToDto(linkRepository.save(mapper.mapToEntity(linkFormDto, appUser)));
+        final var category = categoryRepository.findByName(linkFormDto.getLinkCategory().getName())
+                .orElseThrow(CategoryNotFoundException::new);
+        return mapper.mapToDto(linkRepository.save(mapper.mapToEntity(linkFormDto, appUser, category)));
     }
 
-    public LinkCategoryDto createCategory(CategoryFormDto categoryFormDto) {
-        return mapper.mapToDto(categoryRepository.save(mapper.mapToEntity(categoryFormDto)), false);
+    public LinkCategoryDto createCategory(CategoryFormDto categoryFormDto, String username) {
+        final var user = appUserRepository.findByLogin(username).orElseThrow(() -> new UserNotFoundException(username));
+        return mapper.mapToDto(categoryRepository.save(mapper.mapToEntity(categoryFormDto, user)), false);
     }
 
     public LinkDto updateLink(LinkUpdateFormDto linkUpdateFormDto, String username) {
@@ -67,7 +71,7 @@ public class LinkService {
     }
 
     public void deleteLink(UUID linkId) {
-         linkRepository.delete(linkRepository.findById(linkId).orElseThrow(LinkNotFoundException::new));
+        linkRepository.delete(linkRepository.findById(linkId).orElseThrow(LinkNotFoundException::new));
     }
 
     public void deleteCategory(UUID categoryId) {

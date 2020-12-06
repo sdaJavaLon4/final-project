@@ -12,7 +12,7 @@ public class LinkDto {
 
     private String url;
     private String description;
-    private LinkStatus linkStatus;
-    private LinkCategory linkCategory;
+    private LinkStatusDto linkStatus;
+    private LinkCategoryDto linkCategory;
 
 }

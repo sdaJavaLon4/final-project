@@ -1,33 +1,33 @@
 package pl.javalon4.finalproject.mapper;
 
 import org.springframework.stereotype.Component;
-import pl.javalon4.finalproject.dto.CategoryFormDto;
-import pl.javalon4.finalproject.dto.LinkCategoryDto;
-import pl.javalon4.finalproject.dto.LinkDto;
-import pl.javalon4.finalproject.dto.LinkFormDto;
+import pl.javalon4.finalproject.dto.*;
 import pl.javalon4.finalproject.enity.AppUser;
 import pl.javalon4.finalproject.enity.Link;
 import pl.javalon4.finalproject.enity.LinkCategory;
 import pl.javalon4.finalproject.enity.LinkStatus;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
-
-import static pl.javalon4.finalproject.enity.Link.*;
+import java.util.stream.Collectors;
 
 @Component
 public class LinkMapper {
 
    public LinkDto mapToDto(Link link) {
 
-       return new LinkDto(link.getUrl(), link.getDescription(),link.getStatus(), link.getCategory());
+       return new LinkDto(link.getUrl(), link.getDescription(),
+               LinkStatusDto.valueOf(link.getStatus().name()),
+               mapToDto(link.getCategory(), false));
    }
 
     public LinkCategoryDto mapToDto(LinkCategory linkCategory, boolean showLinks) {
        if (showLinks) {
            return new LinkCategoryDto(linkCategory.getName());
-       } else return new LinkCategoryDto(linkCategory.getName(), linkCategory.getLinks());
+       } else return new LinkCategoryDto(linkCategory.getName(),
+                        linkCategory.getLinks()
+                       .stream()
+                       .map(this::mapToDto)
+                       .collect(Collectors.toList()));
     }
 
     public Link mapToEntity(LinkFormDto linkFormDto, AppUser appUser) {

@@ -23,15 +23,15 @@ public class LinkController {
     public List<LinkDto> getAllLinks() {
         return linkService.getAll();
     }
-    @GetMapping("/categories/{showLinks}")
+    @GetMapping("/category/{showLinks}")
     public List<LinkCategoryDto> getAllCategories(@PathVariable boolean showLinks) {
-        return linkService.getAllCategory(showLinks);
+        return linkService.getAllCategories(showLinks);
     }
     @PostMapping
     public LinkDto createLink(@RequestBody LinkFormDto linkFormDto, @AuthenticationPrincipal User user) {
         return linkService.createLink(linkFormDto, user.getUsername());
     }
-    @PostMapping("/categories")
+    @PostMapping("/category")
     public LinkCategoryDto createCategory(@RequestBody CategoryFormDto categoryFormDto) {
         return linkService.createCategory(categoryFormDto);
     }
@@ -39,7 +39,7 @@ public class LinkController {
     public LinkDto updateLink(@RequestBody LinkUpdateFormDto linkUpdateFormDto, @AuthenticationPrincipal User user) {
         return linkService.updateLink(linkUpdateFormDto, user.getUsername());
     }
-    @PatchMapping("/categories")
+    @PatchMapping("/category")
     public LinkCategoryDto updateCategory(@RequestBody CategoryUpdateFormDto categoryUpdateFormDto ) {
         return linkService.updateCategory(categoryUpdateFormDto.getName());
     }
@@ -47,7 +47,7 @@ public class LinkController {
     public void deleteLink(@PathVariable UUID linkId) {
         linkService.deleteLink(linkId);
     }
-    @DeleteMapping("/categories/{categoryId}")
+    @DeleteMapping("/category/{categoryId}")
     public void deleteCategory(@PathVariable UUID categoryId) {
         linkService.deleteCategory(categoryId);
     }

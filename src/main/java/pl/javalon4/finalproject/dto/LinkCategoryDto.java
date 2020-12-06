@@ -2,7 +2,6 @@ package pl.javalon4.finalproject.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import pl.javalon4.finalproject.enity.Link;
 
 import java.util.List;
 
@@ -11,7 +10,7 @@ import java.util.List;
 public class LinkCategoryDto {
 
     private String name;
-    private List<Link> links;
+    private List<LinkDto> links;
 
     public LinkCategoryDto(String name) {
         this.name = name;

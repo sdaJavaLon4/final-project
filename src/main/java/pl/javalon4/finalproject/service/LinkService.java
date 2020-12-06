@@ -3,8 +3,6 @@ package pl.javalon4.finalproject.service;
 import org.springframework.stereotype.Service;
 import pl.javalon4.finalproject.dto.*;
 import pl.javalon4.finalproject.enity.AppUser;
-import pl.javalon4.finalproject.enity.Link;
-import pl.javalon4.finalproject.enity.LinkCategory;
 import pl.javalon4.finalproject.exception.CategoryNotFoundException;
 import pl.javalon4.finalproject.exception.LinkNotFoundException;
 import pl.javalon4.finalproject.exception.UserNotFoundException;
@@ -14,17 +12,24 @@ import pl.javalon4.finalproject.repository.LinkCategoryRepository;
 import pl.javalon4.finalproject.repository.LinkRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class LinkService {
 
-    private AppUserRepository appUserRepository;
-    private LinkCategoryRepository categoryRepository;
-    private LinkRepository linkRepository;
-    private LinkMapper mapper;
+    final private AppUserRepository appUserRepository;
+    final private LinkCategoryRepository categoryRepository;
+    final private LinkRepository linkRepository;
+    final private LinkMapper mapper;
+
+    public LinkService(AppUserRepository appUserRepository, LinkCategoryRepository categoryRepository,
+                       LinkRepository linkRepository, LinkMapper mapper) {
+        this.appUserRepository = appUserRepository;
+        this.categoryRepository = categoryRepository;
+        this.linkRepository = linkRepository;
+        this.mapper = mapper;
+    }
 
     public LinkDto search(String description) {
         return mapper.mapToDto(linkRepository.findByDescriptionContainingIgnoreCase(description)
@@ -33,11 +38,11 @@ public class LinkService {
 
     public List<LinkDto> getAll() {
         return linkRepository.findAll().stream()
-                .map(link -> mapper.mapToDto(link))
+                .map(mapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
-    public List<LinkCategoryDto> getAllCategory(boolean showLinks) {
+    public List<LinkCategoryDto> getAllCategories(boolean showLinks) {
         return categoryRepository.findAll().stream()
                 .map(linkCategory -> mapper.mapToDto(linkCategory, showLinks))
                 .collect(Collectors.toList());

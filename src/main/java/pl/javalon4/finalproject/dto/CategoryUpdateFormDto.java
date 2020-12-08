@@ -4,5 +4,7 @@ import lombok.Data;
 
 @Data
 public class CategoryUpdateFormDto {
-    private String name;
+
+    private String oldName;
+    private String newName;
 }

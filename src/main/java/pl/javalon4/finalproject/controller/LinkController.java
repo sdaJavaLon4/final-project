@@ -49,17 +49,17 @@ public class LinkController {
     }
 
     @PatchMapping
-    public LinkDto updateLink(@RequestBody LinkUpdateFormDto linkUpdateFormDto, @AuthenticationPrincipal User user) {
-        return linkService.updateLink(linkUpdateFormDto, user.getUsername());
+    public LinkDto updateLink(@RequestBody LinkUpdateFormDto linkUpdateFormDto) {
+        return linkService.updateLink(linkUpdateFormDto);
     }
 
     @PatchMapping("/category")
     public LinkCategoryDto updateCategory(@RequestBody CategoryUpdateFormDto categoryUpdateFormDto) {
-        return linkService.updateCategory(categoryUpdateFormDto.getName());
+        return linkService.updateCategory(categoryUpdateFormDto);
     }
 
     @DeleteMapping("/{linkId}")
-    public void deleteLink(@PathVariable UUID linkId) {
+    public void deleteLink(@PathVariable String linkId) {
         linkService.deleteLink(linkId);
     }
 

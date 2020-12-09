@@ -12,6 +12,7 @@ import java.util.UUID;
 public class UserMapper {
 
     public AppUserDto mapToDto(AppUser appUser) {
+
         return new AppUserDto(appUser.getLogin(), appUser.getEmail());
     }
 

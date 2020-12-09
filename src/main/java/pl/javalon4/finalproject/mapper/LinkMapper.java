@@ -15,7 +15,7 @@ public class LinkMapper {
 
     public LinkDto mapToDto(Link link) {
 
-        return new LinkDto(link.getUrl(), link.getDescription(), LinkStatusDto.valueOf(link.getStatus().name()),
+        return new LinkDto(link.getId(), link.getUrl(), link.getDescription(), LinkStatusDto.valueOf(link.getStatus().name()),
                 mapToDto(link.getCategory(), false));
     }
 

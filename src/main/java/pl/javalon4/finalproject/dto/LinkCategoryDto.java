@@ -14,5 +14,6 @@ public class LinkCategoryDto {
 
     public LinkCategoryDto(String name) {
         this.name = name;
+
     }
 }

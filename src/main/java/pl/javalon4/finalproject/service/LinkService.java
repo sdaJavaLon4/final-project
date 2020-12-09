@@ -1,8 +1,12 @@
 package pl.javalon4.finalproject.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.javalon4.finalproject.dto.*;
 import pl.javalon4.finalproject.enity.AppUser;
+import pl.javalon4.finalproject.enity.Link;
+import pl.javalon4.finalproject.enity.LinkCategory;
+import pl.javalon4.finalproject.enity.LinkStatus;
 import pl.javalon4.finalproject.exception.CategoryNotFoundException;
 import pl.javalon4.finalproject.exception.LinkNotFoundException;
 import pl.javalon4.finalproject.exception.UserNotFoundException;
@@ -13,8 +17,11 @@ import pl.javalon4.finalproject.repository.LinkRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.*;
 
 @Service
 public class LinkService {
@@ -28,7 +35,7 @@ public class LinkService {
     final private LinkMapper mapper;
 
     public LinkService(AppUserRepository appUserRepository, LinkCategoryRepository categoryRepository,
-            LinkRepository linkRepository, LinkMapper mapper) {
+                       LinkRepository linkRepository, LinkMapper mapper) {
         this.appUserRepository = appUserRepository;
         this.categoryRepository = categoryRepository;
         this.linkRepository = linkRepository;
@@ -49,8 +56,8 @@ public class LinkService {
                 .collect(Collectors.toList());
     }
 
-    public LinkDto createLink(LinkFormDto linkFormDto, String login) {
-        AppUser appUser = appUserRepository.findByLogin(login).orElseThrow(() -> new UserNotFoundException(login));
+    public LinkDto createLink(LinkFormDto linkFormDto, String username) {
+        AppUser appUser = appUserRepository.findByLogin(username).orElseThrow(() -> new UserNotFoundException(username));
         final var category = categoryRepository.findByName(linkFormDto.getLinkCategory().getName())
                 .orElseThrow(CategoryNotFoundException::new);
         return mapper.mapToDto(linkRepository.save(mapper.mapToEntity(linkFormDto, appUser, category)));
@@ -61,16 +68,34 @@ public class LinkService {
         return mapper.mapToDto(categoryRepository.save(mapper.mapToEntity(categoryFormDto, user)), false);
     }
 
-    public LinkDto updateLink(LinkUpdateFormDto linkUpdateFormDto, String username) {
-        return null;
+    @Transactional
+    public LinkDto updateLink(LinkUpdateFormDto linkUpdateFormDto) {
+        Link link = linkRepository.findById(linkUpdateFormDto.getId()).orElseThrow(LinkNotFoundException::new);
+        if (nonNull(linkUpdateFormDto.getUrl())) {
+            link.setUrl(linkUpdateFormDto.getUrl());
+        }
+        if (nonNull(linkUpdateFormDto.getDescription())) {
+            link.setDescription(linkUpdateFormDto.getDescription());
+        }
+        if (nonNull(linkUpdateFormDto.getCategory())) {
+            link.setCategory(categoryRepository.findByName(linkUpdateFormDto.getCategory()
+                    .getName()).orElseThrow(CategoryNotFoundException::new));
+        }
+        if (nonNull(linkUpdateFormDto.getStatus())) {
+            link.setStatus(LinkStatus.valueOf(linkUpdateFormDto.getStatus().name()));
+        }
+        return mapper.mapToDto(linkRepository.save(link));
 
     }
 
-    public LinkCategoryDto updateCategory(String name) {
-        return null;
+    public LinkCategoryDto updateCategory(CategoryUpdateFormDto categoryUpdateFormDto) {
+        LinkCategory linkCategory = categoryRepository.findByName(categoryUpdateFormDto.getOldName())
+                .orElseThrow(CategoryNotFoundException::new);
+        linkCategory.setName(categoryUpdateFormDto.getNewName());
+        return mapper.mapToDto(categoryRepository.save(linkCategory), false);
     }
 
-    public void deleteLink(UUID linkId) {
+    public void deleteLink(String linkId) {
         linkRepository.delete(linkRepository.findById(linkId).orElseThrow(LinkNotFoundException::new));
     }
 

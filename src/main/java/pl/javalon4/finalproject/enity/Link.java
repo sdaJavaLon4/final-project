@@ -23,7 +23,7 @@ public class Link {
     @Enumerated(EnumType.STRING)
     private LinkStatus status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private LinkCategory category;
 

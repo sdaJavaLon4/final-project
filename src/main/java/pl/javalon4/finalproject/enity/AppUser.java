@@ -24,4 +24,11 @@ public class AppUser {
 
     @OneToMany(fetch = FetchType.LAZY)
     private Collection<LinkCategory> linkCategories;
+
+    public AppUser(String id, String login, String password, String email) {
+        this.id = id;
+        this.login = login;
+        this.password = password;
+        this.email = email;
+    }
 }

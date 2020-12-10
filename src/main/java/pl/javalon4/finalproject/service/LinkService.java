@@ -17,11 +17,10 @@ import pl.javalon4.finalproject.repository.LinkRepository;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.*;
+import static java.util.Objects.nonNull;
 
 @Service
 public class LinkService {

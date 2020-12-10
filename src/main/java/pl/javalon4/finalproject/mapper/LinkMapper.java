@@ -7,8 +7,11 @@ import pl.javalon4.finalproject.enity.Link;
 import pl.javalon4.finalproject.enity.LinkCategory;
 import pl.javalon4.finalproject.enity.LinkStatus;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.*;
 
 @Component
 public class LinkMapper {
@@ -22,9 +25,11 @@ public class LinkMapper {
     public LinkCategoryDto mapToDto(LinkCategory linkCategory, boolean showLinks) {
         if (!showLinks) {
             return new LinkCategoryDto(linkCategory.getName());
-        } else
-            return new LinkCategoryDto(linkCategory.getName(),
-                    linkCategory.getLinks().stream().map(this::mapToDto).collect(Collectors.toList()));
+        } else if (!nonNull(linkCategory.getLinks())) {
+            return new LinkCategoryDto(linkCategory.getName());
+        }
+        return new LinkCategoryDto(linkCategory.getName(),
+                linkCategory.getLinks().stream().map(this::mapToDto).collect(Collectors.toList()));
     }
 
     public Link mapToEntity(LinkFormDto linkFormDto, AppUser appUser, LinkCategory category) {

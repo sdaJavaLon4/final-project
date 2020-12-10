@@ -7,6 +7,7 @@ import pl.javalon4.finalproject.enity.Link;
 import pl.javalon4.finalproject.enity.LinkCategory;
 import pl.javalon4.finalproject.enity.LinkStatus;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,9 +25,9 @@ public class LinkMapper {
 
     public LinkCategoryDto mapToDto(LinkCategory linkCategory, boolean showLinks) {
         if (!showLinks) {
-            return new LinkCategoryDto(linkCategory.getName());
+            return new LinkCategoryDto(linkCategory.getName(), Collections.emptyList());
         } else if (!nonNull(linkCategory.getLinks())) {
-            return new LinkCategoryDto(linkCategory.getName());
+            return new LinkCategoryDto(linkCategory.getName(), Collections.emptyList());
         }
         return new LinkCategoryDto(linkCategory.getName(),
                 linkCategory.getLinks().stream().map(this::mapToDto).collect(Collectors.toList()));

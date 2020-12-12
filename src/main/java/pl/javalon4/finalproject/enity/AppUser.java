@@ -22,6 +22,6 @@ public class AppUser {
 
     private String email;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private Collection<LinkCategory> linkCategories;
 }

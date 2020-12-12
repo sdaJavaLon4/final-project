@@ -3,6 +3,7 @@ package pl.javalon4.finalproject.enity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = {"user", "links"})
 public class LinkCategory {
 
     public LinkCategory(String id, String name, AppUser user) {

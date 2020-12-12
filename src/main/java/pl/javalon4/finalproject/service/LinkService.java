@@ -22,11 +22,13 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
+// TODO: move category related part to LinkCategoryService
 @Service
 public class LinkService {
 
     final private AppUserRepository appUserRepository;
 
+    // TODO: after refactoring it should be change to LinkCategoryService dependency
     final private LinkCategoryRepository categoryRepository;
 
     final private LinkRepository linkRepository;

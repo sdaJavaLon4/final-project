@@ -1,9 +1,6 @@
 package pl.javalon4.finalproject.enity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -11,6 +8,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "link")
+@ToString(exclude = {"category", "user"})
 public class Link {
 
     @Id

@@ -12,7 +12,4 @@ public class LinkCategoryDto {
     private String name;
     private List<LinkDto> links;
 
-    public LinkCategoryDto(String name) {
-        this.name = name;
-    }
 }

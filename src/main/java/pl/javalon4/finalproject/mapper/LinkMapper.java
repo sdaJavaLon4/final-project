@@ -7,24 +7,30 @@ import pl.javalon4.finalproject.enity.Link;
 import pl.javalon4.finalproject.enity.LinkCategory;
 import pl.javalon4.finalproject.enity.LinkStatus;
 
+import java.util.Collections;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.*;
 
 @Component
 public class LinkMapper {
 
     public LinkDto mapToDto(Link link) {
 
-        return new LinkDto(link.getUrl(), link.getDescription(), LinkStatusDto.valueOf(link.getStatus().name()),
+        return new LinkDto(link.getId(), link.getUrl(), link.getDescription(), LinkStatusDto.valueOf(link.getStatus().name()),
                 mapToDto(link.getCategory(), false));
     }
 
     public LinkCategoryDto mapToDto(LinkCategory linkCategory, boolean showLinks) {
         if (!showLinks) {
-            return new LinkCategoryDto(linkCategory.getName());
-        } else
-            return new LinkCategoryDto(linkCategory.getName(),
-                    linkCategory.getLinks().stream().map(this::mapToDto).collect(Collectors.toList()));
+            return new LinkCategoryDto(linkCategory.getName(), Collections.emptyList());
+        } else if (!nonNull(linkCategory.getLinks())) {
+            return new LinkCategoryDto(linkCategory.getName(), Collections.emptyList());
+        }
+        return new LinkCategoryDto(linkCategory.getName(),
+                linkCategory.getLinks().stream().map(this::mapToDto).collect(Collectors.toList()));
     }
 
     public Link mapToEntity(LinkFormDto linkFormDto, AppUser appUser, LinkCategory category) {

@@ -22,18 +22,19 @@ public class LinkController {
     }
 
     @PostMapping("/search")
-    public Collection<LinkDto> getLink(@RequestBody LinkSearcherDto linkSearcherDto) {
-        return linkService.search(linkSearcherDto.getDescription());
+    public Collection<LinkDto> getLink(@RequestBody LinkSearcherDto linkSearcherDto,
+            @AuthenticationPrincipal User user) {
+        return linkService.search(linkSearcherDto.getDescription(), user.getUsername());
     }
 
     @GetMapping
-    public List<LinkDto> getAllLinks() {
-        return linkService.getAll();
+    public List<LinkDto> getAllLinks(@AuthenticationPrincipal User user) {
+        return linkService.getAll(user.getUsername());
     }
 
     @GetMapping("/category/{showLinks}")
-    public List<LinkCategoryDto> getAllCategories(@PathVariable boolean showLinks) {
-        return linkService.getAllCategories(showLinks);
+    public List<LinkCategoryDto> getAllCategories(@PathVariable boolean showLinks, @AuthenticationPrincipal User user) {
+        return linkService.getAllCategories(showLinks, user.getUsername());
     }
 
     @PostMapping
@@ -49,22 +50,22 @@ public class LinkController {
     }
 
     @PatchMapping
-    public LinkDto updateLink(@RequestBody LinkUpdateFormDto linkUpdateFormDto) {
-        return linkService.updateLink(linkUpdateFormDto);
+    public LinkDto updateLink(@RequestBody LinkUpdateFormDto linkUpdateFormDto, @AuthenticationPrincipal User user) {
+        return linkService.updateLink(linkUpdateFormDto, user.getUsername());
     }
 
     @PatchMapping("/category")
-    public LinkCategoryDto updateCategory(@RequestBody CategoryUpdateFormDto categoryUpdateFormDto) {
-        return linkService.updateCategory(categoryUpdateFormDto);
+    public LinkCategoryDto updateCategory(@RequestBody CategoryUpdateFormDto categoryUpdateFormDto, @AuthenticationPrincipal User user) {
+        return linkService.updateCategory(categoryUpdateFormDto, user.getUsername());
     }
 
     @DeleteMapping("/{linkId}")
-    public void deleteLink(@PathVariable String linkId) {
-        linkService.deleteLink(linkId);
+    public void deleteLink(@PathVariable String linkId, @AuthenticationPrincipal User user) {
+        linkService.deleteLink(linkId, user.getUsername());
     }
 
     @DeleteMapping("/category/{categoryId}")
-    public void deleteCategory(@PathVariable UUID categoryId) {
-        linkService.deleteCategory(categoryId);
+    public void deleteCategory(@PathVariable String categoryId, @AuthenticationPrincipal User user) {
+        linkService.deleteCategory(categoryId, user.getUsername());
     }
 }

@@ -26,7 +26,7 @@ public class LinkCategory {
 
     private String name;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Link> links;
 
     @ManyToOne(fetch = FetchType.LAZY)

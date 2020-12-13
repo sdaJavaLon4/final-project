@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.InstanceOfAssertFactories.comparable;
 import static org.mockito.Mockito.*;
 
 class LinkServiceTest {
@@ -51,19 +52,20 @@ class LinkServiceTest {
     }
 
     @Test
-    public void shouldFoundAllLinksByProvidedDescriptionAndMapToDto() {
+    public void shouldFoundAllLinksByProvidedDescriptionForAuthenticatedUserAndMapToDto() {
         //given
         final List<Link> links = createLinks();
 
-        when(linkRepository.findByDescriptionContainingIgnoreCase("test")).thenReturn(links);
+        when(appUserRepository.findByLogin("testUser")).thenReturn(Optional.of(new AppUser()));
+        when(linkRepository.findByDescriptionContainingIgnoreCaseAndUser(eq("test"), any())).thenReturn(links);
 
         //when
-        Collection<LinkDto> result = linkService.search("test");
+        Collection<LinkDto> result = linkService.search("test", "testUser");
 
         //then
         Assertions.assertTrue(result.stream().allMatch(linkDto -> linkDto.getDescription().contains("test")));
         assertThat(result.size()).isEqualTo(2);
-        verify(linkRepository).findByDescriptionContainingIgnoreCase("test");
+        verify(linkRepository).findByDescriptionContainingIgnoreCaseAndUser(eq("test"), any());
         verifyNoMoreInteractions(linkRepository);
     }
 
@@ -72,16 +74,17 @@ class LinkServiceTest {
         //given
         List<Link> links = createLinks();
         List<String> actualListOfIds = links.stream().map(Link::getId).sorted().collect(Collectors.toList());
-        when(linkRepository.findAll()).thenReturn(links);
+        when(appUserRepository.findByLogin("testUser")).thenReturn(Optional.of(new AppUser()));
+        when(linkRepository.findByUser(any())).thenReturn(links);
 
         //when
-        List<LinkDto> result = linkService.getAll();
+        List<LinkDto> result = linkService.getAll("testUser");
         List<String> resultListOfIds = result.stream().map(LinkDto::getId).sorted().collect(Collectors.toList());
 
         //then
         assertThat(actualListOfIds).isEqualTo(resultListOfIds);
         assertThat(result.size()).isEqualTo(2);
-        verify(linkRepository).findAll();
+        verify(linkRepository).findByUser(any());
         verifyNoMoreInteractions(linkRepository);
     }
 
@@ -89,16 +92,17 @@ class LinkServiceTest {
     public void shouldGetAllCategoriesWithLinksAndMapToDto() {
         //given
         List<LinkCategory> categories = createCategories();
-        when(categoryRepository.findAll()).thenReturn(categories);
+        when(appUserRepository.findByLogin("testUser")).thenReturn(Optional.of(new AppUser()));
+        when(categoryRepository.findByUser(any())).thenReturn(categories);
 
         //when
-        List<LinkCategoryDto> result = linkService.getAllCategories(true);
+        List<LinkCategoryDto> result = linkService.getAllCategories(true, "testUser");
 
         //then
         assertThat(result.size()).isEqualTo(2);
         assertThat(result.stream().filter(linkCategoryDto -> linkCategoryDto.getName().equals("sport"))
                 .mapToLong(linkCategoryDto -> linkCategoryDto.getLinks().size()).sum()).isEqualTo(2);
-        verify(categoryRepository).findAll();
+        verify(categoryRepository).findByUser(any());
         verifyNoMoreInteractions(categoryRepository);
     }
 
@@ -106,15 +110,16 @@ class LinkServiceTest {
     public void shouldGetAllCategoriesWithoutLinksAndMapToDto() {
         //given
         List<LinkCategory> categories = createCategories();
-        when(categoryRepository.findAll()).thenReturn(categories);
+        when(appUserRepository.findByLogin("testUser")).thenReturn(Optional.of(new AppUser()));
+        when(categoryRepository.findByUser(any())).thenReturn(categories);
 
         //when
-        List<LinkCategoryDto> result = linkService.getAllCategories(false);
+        List<LinkCategoryDto> result = linkService.getAllCategories(false, "testUser");
 
         //then
         assertThat(result.size()).isEqualTo(2);
         Assertions.assertTrue(result.stream().allMatch(linkCategoryDto -> linkCategoryDto.getLinks().isEmpty()));
-        verify(categoryRepository).findAll();
+        verify(categoryRepository).findByUser(any());
         verifyNoMoreInteractions(categoryRepository);
     }
 
@@ -122,9 +127,10 @@ class LinkServiceTest {
     public void shouldCreateLinkAndMapToDto() {
         //given
         when(appUserRepository.findByLogin("login")).thenReturn(Optional.of(user));
-        LinkCategory sportCategory = new LinkCategory(UUID.randomUUID().toString(), "sport", user);
-        when(categoryRepository.findByName("sport")).thenReturn(Optional.of(sportCategory));
-        Link createdLink = new Link(UUID.randomUUID().toString(), "https://www.test.pl", "test", LinkStatus.TO_READ,
+        String linkCategoryId = UUID.randomUUID().toString();
+        LinkCategory sportCategory = new LinkCategory(linkCategoryId, "sport", user);
+        when(categoryRepository.findByNameAndUser(eq("sport"), any())).thenReturn(Optional.of(sportCategory));
+        Link createdLink = new Link(linkCategoryId, "https://www.test.pl", "test", LinkStatus.TO_READ,
                 sportCategory, user);
         when(linkRepository.save(any())).thenReturn(createdLink);
         final var linkFormDto = createLinkFormDto();
@@ -136,10 +142,10 @@ class LinkServiceTest {
         assertThat(result.getId()).isNotNull();
         assertThat(result.getDescription()).isEqualTo(linkFormDto.getDescription());
         assertThat(result.getUrl()).isEqualTo(linkFormDto.getUrl());
-        assertThat(result.getLinkCategory()).isEqualTo(linkFormDto.getLinkCategory());
+        assertThat(result.getLinkCategory().getName()).isEqualTo(linkFormDto.getLinkCategory().getName());
         assertThat(result.getLinkStatus()).isEqualTo(LinkStatusDto.TO_READ);
         verify(appUserRepository).findByLogin("login");
-        verify(categoryRepository).findByName("sport");
+        verify(categoryRepository).findByNameAndUser(eq("sport"), any());
         verify(linkRepository).save(any());
         verifyNoMoreInteractions(appUserRepository);
         verifyNoMoreInteractions(categoryRepository);
@@ -162,7 +168,7 @@ class LinkServiceTest {
         //given
         final var linkFormDto = createLinkFormDto();
         when(appUserRepository.findByLogin("login")).thenReturn(Optional.of(user));
-        when(categoryRepository.findByName("error")).thenReturn(Optional.empty());
+        when(categoryRepository.findByNameAndUser(eq("error"), any())).thenReturn(Optional.empty());
 
         //then
         assertThatExceptionOfType(CategoryNotFoundException.class)
@@ -208,20 +214,20 @@ class LinkServiceTest {
                 linkCategory1, user);
         String musicCategory = "music";
         final var linkCategory2 = new LinkCategory(UUID.randomUUID().toString(), musicCategory, user);
-        when(linkRepository.findById(link1.getId())).thenReturn(Optional.of(link1));
-        when(categoryRepository.findByName(musicCategory)).thenReturn(Optional.of(linkCategory2));
+        when(appUserRepository.findByLogin("testUser")).thenReturn(Optional.of(new AppUser()));
+        when(linkRepository.findByIdAndUser(eq(link1.getId()), any())).thenReturn(Optional.of(link1));
+        when(categoryRepository.findByNameAndUser(eq(musicCategory), any())).thenReturn(Optional.of(linkCategory2));
         when(linkRepository.save(link1)).thenReturn(link1);
         final var linkUpdateFormDto = createLinkUpdateFormDto(link1.getId(),
-                new LinkCategoryDto(musicCategory, Collections.emptyList()));
+                new LinkCategoryDto("testId", musicCategory, Collections.emptyList()));
 
         //when
-        LinkDto result = linkService.updateLink(linkUpdateFormDto);
+        LinkDto result = linkService.updateLink(linkUpdateFormDto, "testUser");
 
         //then
-        assertThat(result.getId()).isEqualTo(linkUpdateFormDto.getId());
         assertThat(result.getDescription()).isEqualTo(linkUpdateFormDto.getDescription());
         assertThat(result.getUrl()).isEqualTo(linkUpdateFormDto.getUrl());
-        assertThat(result.getLinkCategory()).isEqualTo(linkUpdateFormDto.getCategory());
+        assertThat(result.getLinkCategory().getName()).isEqualTo(linkUpdateFormDto.getCategory().getName());
         assertThat(result.getLinkStatus()).isEqualTo(linkUpdateFormDto.getStatus());
 
     }
@@ -250,11 +256,12 @@ class LinkServiceTest {
     public void shouldThrowLinkNotFoundExceptionWhenTryToUpdateExistingLink() {
         //given
         LinkUpdateFormDto linkUpdateFormDto = createLinkUpdateFormDto("notExisting", null);
+        when(appUserRepository.findByLogin("testUser")).thenReturn(Optional.of(new AppUser()));
         when(linkRepository.findById(linkUpdateFormDto.getId())).thenReturn(Optional.empty());
 
         //then
         assertThatExceptionOfType(LinkNotFoundException.class)
-                .isThrownBy(() -> linkService.updateLink(linkUpdateFormDto));
+                .isThrownBy(() -> linkService.updateLink(linkUpdateFormDto, "testUser"));
 
     }
 
@@ -268,11 +275,13 @@ class LinkServiceTest {
         //given
         final var categoryUpdateFormDto = createCategoryUpdateFormDto();
         final var linkCategory1 = new LinkCategory(UUID.randomUUID().toString(), "sport", user);
-        when(categoryRepository.findByName(categoryUpdateFormDto.getOldName())).thenReturn(Optional.of(linkCategory1));
+        when(appUserRepository.findByLogin("testUser")).thenReturn(Optional.of(new AppUser()));
+        when(categoryRepository.findByNameAndUser(eq(categoryUpdateFormDto.getOldName()), any()))
+                .thenReturn(Optional.of(linkCategory1));
         when(categoryRepository.save(linkCategory1)).thenReturn(linkCategory1);
 
         //when
-        LinkCategoryDto linkCategoryDto = linkService.updateCategory(categoryUpdateFormDto);
+        LinkCategoryDto linkCategoryDto = linkService.updateCategory(categoryUpdateFormDto, "testUser");
 
         //then
         assertThat(linkCategoryDto.getName()).isEqualTo(categoryUpdateFormDto.getNewName());
@@ -282,11 +291,12 @@ class LinkServiceTest {
     public void shouldThrowCategoryNotFoundExceptionWhenTryToUpdateExistingCategory() {
         //given
         final var categoryUpdateFormDto = createCategoryUpdateFormDto();
-        when(categoryRepository.findByName("error")).thenReturn(Optional.empty());
+        when(appUserRepository.findByLogin("testUser")).thenReturn(Optional.of(new AppUser()));
+        when(categoryRepository.findByNameAndUser(eq("error"), any())).thenReturn(Optional.empty());
 
         //then
         assertThatExceptionOfType(CategoryNotFoundException.class)
-                .isThrownBy(() -> linkService.updateCategory(categoryUpdateFormDto));
+                .isThrownBy(() -> linkService.updateCategory(categoryUpdateFormDto, "testUser"));
     }
 
     @Test
@@ -295,14 +305,15 @@ class LinkServiceTest {
         final var linkCategory1 = new LinkCategory(UUID.randomUUID().toString(), "sport", user);
         final var link1 = new Link(UUID.randomUUID().toString(), "https://www.test.pl", "test", LinkStatus.TO_READ,
                 linkCategory1, user);
-        when(linkRepository.findById(link1.getId())).thenReturn(Optional.of(link1));
+        when(appUserRepository.findByLogin("testUser")).thenReturn(Optional.of(new AppUser()));
+        when(linkRepository.findByIdAndUser(eq(link1.getId()), any())).thenReturn(Optional.of(link1));
         doNothing().when(linkRepository).delete(link1);
 
         //when
-        linkService.deleteLink(link1.getId());
+        linkService.deleteLink(link1.getId(), "testUser");
 
         //then
-        verify(linkRepository).findById(link1.getId());
+        verify(linkRepository).findByIdAndUser(eq(link1.getId()), any());
         verify(linkRepository).delete(link1);
         verifyNoMoreInteractions(linkRepository);
     }
@@ -310,34 +321,38 @@ class LinkServiceTest {
     @Test
     public void shouldThrowLinkNotFoundExceptionWhenTryToDeleteExistingLink() {
         //given
-        when(linkRepository.findById("error")).thenReturn(Optional.empty());
+        when(appUserRepository.findByLogin("testUser")).thenReturn(Optional.of(new AppUser()));
+        when(linkRepository.findByIdAndUser(eq("error"), any())).thenReturn(Optional.empty());
 
         //then
-        assertThatExceptionOfType(LinkNotFoundException.class).isThrownBy(() -> linkService.deleteLink("error"));
+        assertThatExceptionOfType(LinkNotFoundException.class).isThrownBy(() -> linkService.deleteLink("error", "testUser"));
     }
 
     @Test
     public void shouldDeleteExistingCategory() {
         //given
-        final var linkCategory1 = new LinkCategory(UUID.randomUUID().toString(), "sport", user);
-        when(categoryRepository.findById(any())).thenReturn(Optional.of(linkCategory1));
+        String categoryId = UUID.randomUUID().toString();
+        final var linkCategory1 = new LinkCategory(categoryId, "sport", user);
+        when(appUserRepository.findByLogin("testUser")).thenReturn(Optional.of(new AppUser()));
+        when(categoryRepository.findByIdAndUser(eq(categoryId), any())).thenReturn(Optional.of(linkCategory1));
         doNothing().when(categoryRepository).delete(linkCategory1);
 
         //when
-        linkService.deleteCategory(any());
+        linkService.deleteCategory(categoryId, "testUser");
 
         //then
-        verify(categoryRepository).findById(any());
+        verify(categoryRepository).findByIdAndUser(eq(categoryId), any());
         verify(categoryRepository).delete(linkCategory1);
     }
 
     @Test
     public void shouldThrowCategoryNotFoundExceptionWhenTryToDeleteExistingCategory() {
         //given
+        when(appUserRepository.findByLogin("testUser")).thenReturn(Optional.of(new AppUser()));
         when(categoryRepository.findById(any())).thenReturn(Optional.empty());
 
         //then
-        assertThatExceptionOfType(CategoryNotFoundException.class).isThrownBy(() -> linkService.deleteCategory(any()));
+        assertThatExceptionOfType(CategoryNotFoundException.class).isThrownBy(() -> linkService.deleteCategory("testId", "testUser"));
     }
 
     private List<Link> createLinks() {
@@ -350,7 +365,7 @@ class LinkServiceTest {
     }
 
     private LinkFormDto createLinkFormDto() {
-        LinkCategoryDto linkCategoryDto = new LinkCategoryDto("sport", Collections.emptyList());
+        LinkCategoryDto linkCategoryDto = new LinkCategoryDto("testId", "sport", Collections.emptyList());
         return new LinkFormDto("https://www.test.pl", "test", linkCategoryDto);
     }
 

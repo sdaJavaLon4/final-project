@@ -9,6 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 public class LinkCategoryDto {
 
+    private String id;
     private String name;
     private List<LinkDto> links;
 

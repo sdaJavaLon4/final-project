@@ -48,7 +48,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
     CorsConfigurationSource corsConfigurationSource() {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final var corsConfig = new CorsConfiguration();
-//        corsConfig.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+        corsConfig.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
         corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         corsConfig.applyPermitDefaultValues();
         corsConfig.setAllowCredentials(true);

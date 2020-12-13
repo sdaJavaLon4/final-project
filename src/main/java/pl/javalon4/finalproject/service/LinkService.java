@@ -1,5 +1,7 @@
 package pl.javalon4.finalproject.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.javalon4.finalproject.dto.*;
@@ -55,6 +57,10 @@ public class LinkService {
     public List<LinkDto> getAll(String username) {
         return linkRepository.findByUser(findAppUser(username)).stream().map(mapper::mapToDto)
                 .collect(Collectors.toList());
+    }
+
+    public Page<LinkDto> getAllPageable(String username, Pageable pageable) {
+        return linkRepository.findByUser(findAppUser(username), pageable).map(mapper::mapToDto);
     }
 
     public List<LinkCategoryDto> getAllCategories(boolean showLinks, String username) {

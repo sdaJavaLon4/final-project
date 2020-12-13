@@ -1,5 +1,8 @@
 package pl.javalon4.finalproject.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
@@ -9,7 +12,6 @@ import pl.javalon4.finalproject.service.LinkService;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/link")
@@ -30,6 +32,13 @@ public class LinkController {
     @GetMapping
     public List<LinkDto> getAllLinks(@AuthenticationPrincipal User user) {
         return linkService.getAll(user.getUsername());
+    }
+
+    @GetMapping("/pageable")
+    public Page<LinkDto> getAllLinksPageable(@AuthenticationPrincipal User user,
+            @RequestParam(name = "count") int countPerPage, @RequestParam(name = "page") int pageNumber) {
+        return linkService
+                .getAllPageable(user.getUsername(), PageRequest.of(pageNumber, countPerPage, Sort.by("description")));
     }
 
     @GetMapping("/category/{showLinks}")
@@ -55,7 +64,8 @@ public class LinkController {
     }
 
     @PatchMapping("/category")
-    public LinkCategoryDto updateCategory(@RequestBody CategoryUpdateFormDto categoryUpdateFormDto, @AuthenticationPrincipal User user) {
+    public LinkCategoryDto updateCategory(@RequestBody CategoryUpdateFormDto categoryUpdateFormDto,
+            @AuthenticationPrincipal User user) {
         return linkService.updateCategory(categoryUpdateFormDto, user.getUsername());
     }
 
